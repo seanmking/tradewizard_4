@@ -97,7 +97,7 @@ Based on the latest UI design for TradeWizard, the application will implement a 
   - Minimal internal state
   - Clear prop interfaces
 - **Reuse Strategy**:
-  - Extract UI components from TradeWizard 3.0 without their state management
+  - Extract UI components from [TradeWizard 3.0](https://github.com/seanmking/TradeWizard_3_Windsurf) without their state management
   - Adapt components to work with React Context
   - Preserve the visual design and interaction patterns
 
