@@ -66,17 +66,115 @@ Provides supporting information:
    npm install lucide-react
    ```
 
-2. **Create the Component Structure**
+2. **Configure Tailwind CSS Properly**
+   
+   Create a proper `tailwind.config.js` file in the root of your project:
+
+   ```js
+   // tailwind.config.js
+   module.exports = {
+     content: [
+       "./src/**/*.{js,ts,jsx,tsx}",
+       "./components/**/*.{js,ts,jsx,tsx}",
+       "./pages/**/*.{js,ts,jsx,tsx}",
+       // Ensure all paths where you use Tailwind classes are included
+     ],
+     theme: {
+       extend: {
+         colors: {
+           // TradeWizard color system
+           primary: {
+             50: '#f5f3ff',
+             100: '#ede9fe',
+             200: '#ddd6fe',
+             300: '#c4b5fd',
+             400: '#a78bfa',
+             500: '#8b5cf6',
+             600: '#7c3aed',  // Main purple
+             700: '#6d28d9',
+             800: '#5b21b6',
+             900: '#4c1d95',
+             950: '#2e1065',
+           },
+           secondary: {
+             50: '#ecfdf5',
+             100: '#d1fae5',
+             200: '#a7f3d0',
+             300: '#6ee7b7',
+             400: '#34d399',
+             500: '#10b981',
+             600: '#059669',
+             700: '#047857',
+             800: '#065f46',
+             900: '#064e3b',
+             950: '#022c22',
+           },
+           // Add any other custom colors needed
+         }
+       }
+     },
+     plugins: [],
+     // CRITICAL: Safelist to prevent purging of dynamically used classes
+     safelist: [
+       // Primary color variants
+       'bg-primary-50', 'bg-primary-100', 'bg-primary-200', 'bg-primary-300', 'bg-primary-400',
+       'bg-primary-500', 'bg-primary-600', 'bg-primary-700', 'bg-primary-800', 'bg-primary-900',
+       'text-primary-50', 'text-primary-100', 'text-primary-200', 'text-primary-300', 'text-primary-400',
+       'text-primary-500', 'text-primary-600', 'text-primary-700', 'text-primary-800', 'text-primary-900',
+       'border-primary-50', 'border-primary-100', 'border-primary-200', 'border-primary-300', 'border-primary-400',
+       'border-primary-500', 'border-primary-600', 'border-primary-700', 'border-primary-800', 'border-primary-900',
+       
+       // Secondary color variants
+       'bg-secondary-50', 'bg-secondary-100', 'bg-secondary-200', 'bg-secondary-300', 'bg-secondary-400',
+       'bg-secondary-500', 'bg-secondary-600', 'bg-secondary-700', 'bg-secondary-800', 'bg-secondary-900',
+       'text-secondary-50', 'text-secondary-100', 'text-secondary-200', 'text-secondary-300', 'text-secondary-400',
+       'text-secondary-500', 'text-secondary-600', 'text-secondary-700', 'text-secondary-800', 'text-secondary-900',
+       'border-secondary-50', 'border-secondary-100', 'border-secondary-200', 'border-secondary-300', 'border-secondary-400',
+       'border-secondary-500', 'border-secondary-600', 'border-secondary-700', 'border-secondary-800', 'border-secondary-900',
+       
+       // You can add other critical utility classes here
+     ]
+   }
+   ```
+
+3. **Create PostCSS Configuration**
+
+   Create a `postcss.config.js` file in the root of your project:
+
+   ```js
+   // postcss.config.js
+   module.exports = {
+     plugins: {
+       'tailwindcss/nesting': {},
+       tailwindcss: {},
+       autoprefixer: {},
+     }
+   }
+   ```
+
+4. **Convert Existing Components to Use the Color System**
+
+   When adapting the provided components, replace generic color references with theme colors:
+
+   | Original Class | Themed Replacement |
+   |----------------|-------------------|
+   | `bg-purple-600` | `bg-primary-600` |
+   | `text-purple-700` | `text-primary-700` |
+   | `border-purple-500` | `border-primary-500` |
+   | `bg-blue-50` | `bg-secondary-50` |
+   | `text-blue-800` | `text-secondary-800` |
+
+5. **Create the Component Structure**
    - Create the file structure following the organization in this repository
    - Ensure proper imports between components
 
-3. **Implement the Components**
+6. **Implement the Components**
    - Start with the context for state management
-   - Implement the layout components
+   - Implement the layout components with proper theme colors
    - Add the UI components
    - Connect everything with the page component
 
-4. **Test the Implementation**
+7. **Test the Implementation**
    ```bash
    # Run the development server
    npm run dev
@@ -146,14 +244,76 @@ function ContextPortal({ children }) {
 }
 ```
 
-## Customization Options
+## Tailwind CSS Color System Integration
 
-You can customize this implementation in several ways:
+### Common Pitfalls & Troubleshooting
 
-1. **Styling**: Update Tailwind classes to match your design system
-2. **Data Sources**: Replace sample HS code data with real data sources
-3. **AI Integration**: Enhance the conversation with real AI responses
-4. **State Management**: Extend the context with additional state as needed
+1. **Missing Color Classes**
+   - **Problem**: Tailwind purges unused classes during production builds, including custom theme colors that might be dynamically generated
+   - **Solution**: Use the `safelist` option in `tailwind.config.js` to explicitly include essential color classes
+   
+2. **Inconsistent Color Appearance**
+   - **Problem**: Design system colors aren't showing up as expected
+   - **Troubleshooting Steps**:
+     1. Check that your `tailwind.config.js` correctly extends the theme with your custom colors
+     2. Ensure your content paths include all files where color classes are used
+     3. Verify that PostCSS is properly configured (especially if you're using Tailwind v3+)
+     4. Check for conflicting CSS that might be overriding your theme colors
+
+3. **Design System Integration**
+   - **Problem**: Custom color system doesn't match the design requirements
+   - **Solution**: 
+     - Map all colors to appropriate semantic roles (primary, secondary, etc.)
+     - Use CSS variables for theming if you need runtime color switching
+     - Consider a design token system for larger applications
+
+4. **Build-time Errors**
+   - **Problem**: Build failures related to Tailwind configuration
+   - **Solution**:
+     - Ensure Tailwind and PostCSS versions are compatible
+     - Check that all plugin configurations are correct
+     - Look for syntax errors in configuration files
+
+### Using CSS Variables for Dynamic Theming (Advanced)
+
+If your project requires dynamic theme switching, consider using CSS variables:
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: 'var(--color-primary-50)',
+          100: 'var(--color-primary-100)',
+          // ...and so on
+          600: 'var(--color-primary-600)',
+        }
+      }
+    }
+  }
+}
+```
+
+Then define your variables in a global CSS file:
+
+```css
+:root {
+  --color-primary-50: #f5f3ff;
+  --color-primary-100: #ede9fe;
+  /* ...and so on */
+  --color-primary-600: #7c3aed;
+}
+
+/* For dark mode or themes */
+.dark-theme {
+  --color-primary-50: #2e1065;
+  --color-primary-100: #4c1d95;
+  /* ...reversed values */
+  --color-primary-600: #c4b5fd;
+}
+```
 
 ## Performance Considerations
 
@@ -171,4 +331,4 @@ You can customize this implementation in several ways:
 
 This implementation provides a solid foundation for the Product Classification module in TradeWizard 3.0. It follows the architectural principles outlined in the project requirements while providing a clean, maintainable codebase that can be extended as needed.
 
-The three-panel layout with conversation-driven guidance creates an intuitive user experience that aligns with the project's goals of simplifying export readiness assessment for South African SMEs.
+The three-panel layout with conversation-driven guidance creates an intuitive user experience that aligns with the project's goals of simplifying export readiness assessment for South African SMEs. By following the Tailwind CSS configuration guidance, you'll avoid common pitfalls with color systems and ensure a consistent visual experience.
